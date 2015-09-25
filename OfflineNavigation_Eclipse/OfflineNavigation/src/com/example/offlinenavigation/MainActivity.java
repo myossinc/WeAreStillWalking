@@ -11,6 +11,8 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 
+import com.example.offlinenavigation.AssetsController.RefImage;
+
 import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
@@ -21,6 +23,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore.Images.ImageColumns;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceView;
@@ -32,7 +35,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class MainActivity extends Activity implements CvCameraViewListener2 {
+public class MainActivity extends Activity implements CvCameraViewListener2, ImageCompare.CompareThreadStatusListener {
 
 	private static final String WATCH_BUTTON = "Schau dir lieber den fancy Button an!";
 	private static final String USER_NODE = "Der Nutzer befindet sich auf dem Node: ";
@@ -48,6 +51,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 
 	private CameraBridgeViewBase cameraView;
 	private ImageView imageFromAssets;
+	
+	private AssetsController m_AssetController;
 
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -76,6 +81,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		setupViews();
 		setupListeners();		
 
+		m_AssetController = new AssetsController(this);
+		
 		// Get test image from assets folder
 		Bitmap temp = getBitmapFromAsset(this, "ZHG_2_33_2.JPG");
 		imageFromAssets.setImageBitmap(temp);
@@ -180,13 +187,15 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 	public void onCameraViewStopped() {
 	}
 
+	private boolean shouldStartNewThread = true;
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 
-		// Get Image from assets folder with "getBitmapFormAssets"-method		
-
-		// Process frame here
-
+		if (shouldStartNewThread) {
+			shouldStartNewThread = false;
+			ImageCompare ic = new ImageCompare(inputFrame.gray(), m_AssetController, this);
+			ic.startComparing();
+		}
 		return inputFrame.rgba();
 	}
 
@@ -204,5 +213,22 @@ public class MainActivity extends Activity implements CvCameraViewListener2 {
 		}
 
 		return bitmap;
+	}
+
+	@Override
+	public void onComparingStarted() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onCompareFinished(RefImage bestFittingImage) {
+		shouldStartNewThread = true;
+	}
+
+	@Override
+	public void onCompareSinglePictureFinished(RefImage image) {
+		// TODO Auto-generated method stub
+		
 	}
 }
