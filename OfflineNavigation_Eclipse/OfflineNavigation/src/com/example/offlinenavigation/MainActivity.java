@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore.Images.ImageColumns;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceView;
@@ -34,6 +35,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity implements CvCameraViewListener2, ImageCompare.CompareThreadStatusListener {
 
@@ -53,6 +55,11 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	private ImageView imageFromAssets;
 	
 	private AssetsController m_AssetController;
+	
+	static {
+	    System.loadLibrary("opencv_java");
+	    System.loadLibrary("nonfree");
+	}
 
 	private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
 		@Override
@@ -60,6 +67,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 			switch (status) {
 			case LoaderCallbackInterface.SUCCESS: {
 				cameraView.enableView();
+				m_AssetController = new AssetsController(MainActivity.this);
 			}
 				break;
 			default: {
@@ -81,7 +89,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		setupViews();
 		setupListeners();		
 
-		m_AssetController = new AssetsController(this);
+		
 		
 		// Get test image from assets folder
 		Bitmap temp = getBitmapFromAsset(this, "ZHG_2_33_2.JPG");
@@ -196,6 +204,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 			ImageCompare ic = new ImageCompare(inputFrame.gray(), m_AssetController, this);
 			ic.startComparing();
 		}
+		
 		return inputFrame.rgba();
 	}
 
@@ -217,18 +226,18 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 
 	@Override
 	public void onComparingStarted() {
-		// TODO Auto-generated method stub
-		
+		//Toast.makeText(this, "Started", Toast.LENGTH_SHORT).show();
+		Log.e("TES", "Sttarted");
 	}
 
 	@Override
 	public void onCompareFinished(RefImage bestFittingImage) {
 		shouldStartNewThread = true;
+		Log.e("TES", "Finisheed");
 	}
 
 	@Override
 	public void onCompareSinglePictureFinished(RefImage image) {
-		// TODO Auto-generated method stub
-		
+		Log.e("TES", "One finsihed");
 	}
 }
