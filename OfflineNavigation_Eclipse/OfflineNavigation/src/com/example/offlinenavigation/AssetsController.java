@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfKeyPoint;
 import org.opencv.android.*;
 
 import android.content.Context;
@@ -18,6 +19,10 @@ public class AssetsController {
 	public class RefImage {
 		public String m_Name;
 		public String m_FullName;
+		public Mat m_CompareImage;
+		
+		public MatOfKeyPoint m_Keypoints = null;
+		public Mat m_Descriptors = null;
 		
 		public Bitmap getImage() {
 			return getBitmapFromAsset(m_FullName);
@@ -55,7 +60,6 @@ public class AssetsController {
 		addImage("ZHG_2_39_1.JPG");
 		addImage("ZHG_2_39_2.JPG");
 		addImage("ZHG_2_39_3.JPG");
-		addImage("ZHG_2_39_4.JPG");
 		
 		addImage("ZHG_2_45_1.JPG");
 		addImage("ZHG_2_45_2.JPG");
@@ -112,6 +116,8 @@ public class AssetsController {
 		} catch (IOException e) {
 			// handle exception
 		}
+		
+		bitmap = Bitmap.createScaledBitmap(bitmap, 420, 236, false);
 
 		return bitmap;
 	}

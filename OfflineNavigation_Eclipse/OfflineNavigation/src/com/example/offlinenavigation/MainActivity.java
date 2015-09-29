@@ -9,6 +9,7 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.core.Mat;
 
 import com.example.offlinenavigation.AssetsController.RefImage;
@@ -34,13 +35,13 @@ import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements CvCameraViewListener2, ImageCompare.CompareThreadStatusListener {
 
-	private static final String WATCH_BUTTON = "Schau dir lieber den fancy Button an!";
-	private static final String USER_NODE = "Der Nutzer befindet sich auf dem Node: ";
+	private static final String USER_NODE = "Aktueller Node: ";
 	private static final String ROTATION = "rotation";
 	private static final String BASE_URI = "http://urwalking.ur.de/navi/index.php?";
 	private static final String START_AREA = "startArea=";
@@ -53,6 +54,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 
 	private CameraBridgeViewBase cameraView;
 	private ImageView imageFromAssets;
+	
+	/* Progress Bar */
+	private ProgressBar progressBar;
+	private int progressBarProgress = 0;
 	
 	private AssetsController m_AssetController;
 	
@@ -68,6 +73,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 			case LoaderCallbackInterface.SUCCESS: {
 				cameraView.enableView();
 				m_AssetController = new AssetsController(MainActivity.this);
+				progressBar.setMax(m_AssetController.getImages().size()+1);
 			}
 				break;
 			default: {
@@ -87,19 +93,23 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setupViews();
-		setupListeners();		
-
-		
-		
-		// Get test image from assets folder
-		Bitmap temp = getBitmapFromAsset(this, "ZHG_2_33_2.JPG");
-		imageFromAssets.setImageBitmap(temp);
+		setupListeners();
 	}
 
 	private void setupViews() {
-		imageFromAssets = (ImageView) findViewById(R.id.matched_image);
+		/* Right side Image view */
+		imageFromAssets = (ImageView) findViewById(R.id.matched_image1);
+		imageFromAssets.setBackgroundColor(Color.LTGRAY);
+		
+		
 		text = (TextView) findViewById(R.id.node_name);
+		text.setText("No matching node so far");
+		
 		button = (Button) findViewById(R.id.fanciest_button_ever);
+		button.setEnabled(false);
+		
+		progressBar = (ProgressBar) findViewById(R.id.threadProgressBar);
+		
 		cameraView = (CameraBridgeViewBase) findViewById(R.id.camera_image);
 		cameraView.setVisibility(SurfaceView.VISIBLE);
 		cameraView.setCvCameraViewListener(this);
@@ -118,7 +128,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		anim.setDuration(500);
 		anim.start();
 		blinkButton();
-		showNode(WATCH_BUTTON);
+		showNode(areaValue + " " + nodeValue);
 	}
 
 	private void blinkButton() {
@@ -137,6 +147,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 			@Override
 			public void run() {
 				button.clearAnimation();
+				openUrWalking();
+			}
+
+			private void openUrWalking() {
 				String url = BASE_URI + START_AREA + areaValue + "&" + START_NODE + nodeValue;
 				Uri uri = Uri.parse(url);
 				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -164,6 +178,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		int id = item.getItemId();
 
 		if (id == R.id.action_settings) {
+			m_PreviewEnabled = !m_PreviewEnabled;
 			return true;
 		}
 
@@ -201,7 +216,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 
 		if (shouldStartNewThread) {
 			shouldStartNewThread = false;
-			ImageCompare ic = new ImageCompare(inputFrame.gray(), m_AssetController, this);
+			ImageCompare ic = new ImageCompare(inputFrame.gray().clone(), m_AssetController, this);
 			ic.startComparing();
 		}
 		
@@ -227,17 +242,58 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	@Override
 	public void onComparingStarted() {
 		//Toast.makeText(this, "Started", Toast.LENGTH_SHORT).show();
-		Log.e("TES", "Sttarted");
+		Log.e("CompareThread", "Started");
+		MainActivity.this.runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				progressBarProgress = 0;
+				progressBar.setProgress(progressBarProgress);
+			}
+		});
 	}
 
 	@Override
-	public void onCompareFinished(RefImage bestFittingImage) {
+	public void onCompareFinished(final RefImage bestFittingImage) {
 		shouldStartNewThread = true;
-		Log.e("TES", "Finisheed");
+		Log.e("CompareThread", "Finisheed");
+		MainActivity.this.runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				Toast.makeText(MainActivity.this, "Search completed", Toast.LENGTH_SHORT).show();
+				imageFromAssets.setImageBitmap(bestFittingImage.getImage());
+				text.setText("You are at this node: " + bestFittingImage.m_Name);
+				button.setEnabled(true);
+				
+				String[] data = bestFittingImage.m_Name.split("_");
+				areaValue = data[0];
+				nodeValue = data[2];
+			}
+			
+		});
 	}
 
+	private boolean m_PreviewEnabled = true;
+	
 	@Override
-	public void onCompareSinglePictureFinished(RefImage image) {
-		Log.e("TES", "One finsihed");
+	public void onCompareSinglePictureFinished(final RefImage image) {
+		//Log.e("CompareThread", "One finsihed");
+		MainActivity.this.runOnUiThread(new Runnable() {
+
+			@Override
+			public void run() {
+				//Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
+				
+				if (image != null && image.m_CompareImage != null && m_PreviewEnabled) {
+					Bitmap b = Bitmap.createBitmap(image.m_CompareImage.cols(), image.m_CompareImage.rows(), Bitmap.Config.ARGB_8888);
+					Utils.matToBitmap(image.m_CompareImage, b);
+					imageFromAssets.setImageBitmap(b);
+				}
+				
+				progressBar.setProgress(progressBarProgress++);
+			}
+			
+		});
 	}
 }

@@ -11,44 +11,49 @@
     tools:context=".MainActivity" >
 
     <TextView
-        android:id="@+id/headline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/headline"
-        android:textSize="20sp" />
-
-    <Button
-        android:id="@+id/fanciest_button_ever"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="@string/button_text"
-        android:textSize="12sp"
-        android:layout_below="@id/headline" />
-
-    <TextView
         android:id="@+id/node_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="@string/node_hint"
-        android:layout_below="@id/fanciest_button_ever" />
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:text="@string/node_hint" />
+
+    <ImageView
+        android:id="@+id/matched_image1"
+        android:layout_width="75pt"
+        android:layout_height="75pt"
+        android:layout_alignLeft="@+id/threadProgressBar"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/camera_image" />
 
     <org.opencv.android.JavaCameraView
         android:id="@+id/camera_image"
         android:layout_width="75pt"
         android:layout_height="75pt"
-        android:layout_below="@id/node_name"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        opencv:show_fps="true"
-        opencv:camera_id="any" />
+        android:layout_below="@+id/fanciest_button_ever"
+        android:layout_toLeftOf="@+id/matched_image1"
+        opencv:camera_id="any"
+        opencv:show_fps="true" />
 
-    <ImageView
-        android:id="@+id/matched_image"
-        android:layout_width="75pt"
-        android:layout_height="75pt"
-        android:layout_below="@id/node_name"
-        android:layout_alignParentRight="true"
-		 />
+    <ProgressBar
+        android:id="@+id/threadProgressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/node_name"
+        android:layout_centerHorizontal="true"
+        android:max="100"
+        android:progress="30" />
+
+    <Button
+        android:id="@+id/fanciest_button_ever"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/matched_image1"
+        android:text="@string/button_text"
+        android:textSize="12sp" />
 
 </RelativeLayout>
