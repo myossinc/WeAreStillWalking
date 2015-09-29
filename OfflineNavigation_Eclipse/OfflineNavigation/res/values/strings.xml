@@ -1,9 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">OfflineNavigation</string>
 
+    <string name="app_name">OfflineNavigation</string>
     <string name="headline">URWalking Indoor Navigation</string>
     <string name="action_settings">Show preview</string>
     <string name="node_hint">Du bist bei diesem Node</string>
     <string name="button_text">Open URwalking</string>
+    <string name="title_activity_splash_screen">SplashScreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 
 </resources>

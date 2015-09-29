@@ -44,12 +44,13 @@ public class ImageCompare {
 		m_StatusListener = s;
 	}
 	
-	public void startComparing() {
+	public CompareImages startComparing() {
 		CompareImages thread = new CompareImages();
 		thread.execute();
+		return thread;
 	}
 	
-	private class CompareImages extends AsyncTask<Void, RefImage, RefImage> {
+	public class CompareImages extends AsyncTask<Void, RefImage, RefImage> {
 
 		public Bitmap toGrayscale(Bitmap bmpOriginal)
 	    {        
@@ -84,9 +85,12 @@ public class ImageCompare {
 			
 			publishProgress(null);
 			
-			int[] results = new int[m_Assets.getImages().size()];
+			double[] results = new double[m_Assets.getImages().size()];
 			
 			for (int i = 0; i < m_Assets.getImages().size(); i++) {
+				if (isCancelled())
+					return null;
+				
 				RefImage curRefImage = m_Assets.getImages().get(i);
 				
 				MatOfKeyPoint keypointsRefImage = curRefImage.m_Keypoints;
@@ -134,10 +138,11 @@ public class ImageCompare {
 				MatOfDMatch good_matches = new MatOfDMatch();
 				Vector<DMatch> good_matches_temp = new Vector<DMatch>();
 
-				for( int k = 0; k < matches.toArray().length; k++ )
+				int numAllMatches = matches.toArray().length;
+				for( int k = 0; k < numAllMatches; k++ )
 				{
 					DMatch object = matches_arr[k];
-					if( object.distance < 4*min_dist )
+					if( object.distance < 2*min_dist )
 					{ 
 						good_matches_temp.add(object);
 					}
@@ -149,14 +154,16 @@ public class ImageCompare {
 				Features2d.drawMatches(m_Image, keypointsCameraImage, refImageCv, keypointsRefImage, good_matches, compareImgMat);
 				curRefImage.m_CompareImage = compareImgMat;
 				
-				results[i] = good_matches_temp.size();
+				results[i] = (double)good_matches_temp.size() / (double)numAllMatches;
+				curRefImage.m_Percentage = results[i];
 				
 				publishProgress(curRefImage);
 				
 				refImageBitmap.recycle();
 			}
 			
-			int maxValue = -1;
+			
+			double maxValue = 0;
 			int bestId = -1;
 			for (int i = 0; i < results.length; i++) {
 				if (results[i] > maxValue) {
@@ -165,9 +172,13 @@ public class ImageCompare {
 				}
 			}
 			
-			RefImage finalimg = m_Assets.getImages().get(bestId);
-			
-			return finalimg;
+			if (bestId != -1) {
+				RefImage finalimg = m_Assets.getImages().get(bestId);		
+				return finalimg;
+			}
+			else {
+				return null;
+			}
 		}
 		
 

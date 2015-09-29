@@ -20,6 +20,7 @@ public class AssetsController {
 		public String m_Name;
 		public String m_FullName;
 		public Mat m_CompareImage;
+		public double m_Percentage = 0.0f;
 		
 		public MatOfKeyPoint m_Keypoints = null;
 		public Mat m_Descriptors = null;
@@ -117,7 +118,7 @@ public class AssetsController {
 			// handle exception
 		}
 		
-		bitmap = Bitmap.createScaledBitmap(bitmap, 420, 236, false);
+		bitmap = Bitmap.createScaledBitmap(bitmap, 768, 432, false);
 
 		return bitmap;
 	}

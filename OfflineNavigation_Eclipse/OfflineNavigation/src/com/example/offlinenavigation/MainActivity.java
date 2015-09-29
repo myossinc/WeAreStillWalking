@@ -24,6 +24,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.provider.MediaStore.Images.ImageColumns;
 import android.util.Log;
 import android.view.Menu;
@@ -50,10 +52,12 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	private String nodeValue = "";
 
 	private Button button;
-	private TextView text;
+	private TextView currentNodeLabel;
+	private TextView matchPercentageLabel;
 
 	private CameraBridgeViewBase cameraView;
 	private ImageView imageFromAssets;
+	private ImageView splashScreen;
 	
 	/* Progress Bar */
 	private ProgressBar progressBar;
@@ -74,6 +78,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 				cameraView.enableView();
 				m_AssetController = new AssetsController(MainActivity.this);
 				progressBar.setMax(m_AssetController.getImages().size()+1);
+				progressBar.setProgress(0);
+				//splashScreen.setVisibility(View.GONE);
 			}
 				break;
 			default: {
@@ -96,19 +102,40 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		setupListeners();
 	}
 
+	Handler splashHandler = new Handler() {
+		
+		@Override
+		public void handleMessage(Message msg) {
+            switch (msg.what) {
+            case 0:
+                    //remove SplashScreen from view
+                    splashScreen.setVisibility(View.GONE);
+                    break;
+            }
+            super.handleMessage(msg);
+		}
+	};
+	
 	private void setupViews() {
 		/* Right side Image view */
 		imageFromAssets = (ImageView) findViewById(R.id.matched_image1);
 		imageFromAssets.setBackgroundColor(Color.LTGRAY);
 		
+		splashScreen = (ImageView) findViewById(R.id.splashScreen);
+		splashScreen.setBackgroundColor(Color.WHITE);
+		splashHandler.sendEmptyMessageDelayed(0, 1500);
 		
-		text = (TextView) findViewById(R.id.node_name);
-		text.setText("No matching node so far");
+		currentNodeLabel = (TextView) findViewById(R.id.node_name);
+		currentNodeLabel.setText("No matching node so far");
+		
+		matchPercentageLabel = (TextView) findViewById(R.id.matchPercentage);
+		matchPercentageLabel.setText("Match Percentage: 0.0%");
 		
 		button = (Button) findViewById(R.id.fanciest_button_ever);
 		button.setEnabled(false);
 		
 		progressBar = (ProgressBar) findViewById(R.id.threadProgressBar);
+		progressBar.setProgress(0);
 		
 		cameraView = (CameraBridgeViewBase) findViewById(R.id.camera_image);
 		cameraView.setVisibility(SurfaceView.VISIBLE);
@@ -160,7 +187,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	}
 
 	private void showNode(String node) {
-		text.setText(USER_NODE + node);
+		currentNodeLabel.setText(USER_NODE + node);
 		ObjectAnimator anim = ObjectAnimator.ofFloat(button, ROTATION, 0f, 1080f);
 		anim.setDuration(1000);
 		anim.start();
@@ -180,6 +207,22 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		if (id == R.id.action_settings) {
 			m_PreviewEnabled = !m_PreviewEnabled;
 			return true;
+		} else if (id == R.id.action_takePicture) {
+			if (canStartNewThread) {
+				shouldTakePictureOnNextFrame = true;
+				//item.setEnabled(false);
+			}
+			else {
+				Toast.makeText(this, "Image comparison is currently working ... blocked!", Toast.LENGTH_SHORT).show();
+			}
+		} else if (id == R.id.action_cancelThread) {
+			if (mCompareThread != null) {
+				mCompareThread.cancel(false);
+				Toast.makeText(this, "Comparing cancelled", Toast.LENGTH_SHORT).show();
+				progressBar.setProgress(0);
+				progressBarProgress = 0;
+				canStartNewThread = true;
+			}
 		}
 
 		return super.onOptionsItemSelected(item);
@@ -210,14 +253,19 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	public void onCameraViewStopped() {
 	}
 
-	private boolean shouldStartNewThread = true;
+	private boolean shouldTakePictureOnNextFrame = false;
+	private boolean canStartNewThread = true;
+	
+	private ImageCompare.CompareImages mCompareThread = null;
+	
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
 
-		if (shouldStartNewThread) {
-			shouldStartNewThread = false;
+		if (canStartNewThread && shouldTakePictureOnNextFrame) {
+			canStartNewThread = false;
+			shouldTakePictureOnNextFrame = false;
 			ImageCompare ic = new ImageCompare(inputFrame.gray().clone(), m_AssetController, this);
-			ic.startComparing();
+			mCompareThread = ic.startComparing();
 		}
 		
 		return inputFrame.rgba();
@@ -255,20 +303,28 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 
 	@Override
 	public void onCompareFinished(final RefImage bestFittingImage) {
-		shouldStartNewThread = true;
-		Log.e("CompareThread", "Finisheed");
+		canStartNewThread = true;
+		Log.e("CompareThread", "Finished");
+		mCompareThread = null;
 		MainActivity.this.runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
-				Toast.makeText(MainActivity.this, "Search completed", Toast.LENGTH_SHORT).show();
-				imageFromAssets.setImageBitmap(bestFittingImage.getImage());
-				text.setText("You are at this node: " + bestFittingImage.m_Name);
-				button.setEnabled(true);
-				
-				String[] data = bestFittingImage.m_Name.split("_");
-				areaValue = data[0];
-				nodeValue = data[2];
+				if (bestFittingImage != null) {
+					Toast.makeText(MainActivity.this, "Search completed", Toast.LENGTH_SHORT).show();
+					imageFromAssets.setImageBitmap(bestFittingImage.getImage());
+					currentNodeLabel.setText("You are at this node: " + bestFittingImage.m_Name);
+					button.setEnabled(true);
+					
+					String[] data = bestFittingImage.m_Name.split("_");
+					areaValue = data[0];
+					nodeValue = data[2];
+					
+					setMatchPercentage(bestFittingImage.m_Percentage);
+				}
+				else {
+					Toast.makeText(MainActivity.this, "No match found", Toast.LENGTH_SHORT).show();
+				}
 			}
 			
 		});
@@ -278,7 +334,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	
 	@Override
 	public void onCompareSinglePictureFinished(final RefImage image) {
-		//Log.e("CompareThread", "One finsihed");
+		//Log.e("CompareThread", "One finished");
 		MainActivity.this.runOnUiThread(new Runnable() {
 
 			@Override
@@ -289,11 +345,19 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 					Bitmap b = Bitmap.createBitmap(image.m_CompareImage.cols(), image.m_CompareImage.rows(), Bitmap.Config.ARGB_8888);
 					Utils.matToBitmap(image.m_CompareImage, b);
 					imageFromAssets.setImageBitmap(b);
+					setMatchPercentage(image.m_Percentage);
+					
+					Log.e("COMPARE_SINGLE", image.m_Name + " | Matching: " + image.m_Percentage + "%");
 				}
 				
 				progressBar.setProgress(progressBarProgress++);
 			}
 			
 		});
+	}
+	
+	private void setMatchPercentage(double matchPer) {
+		matchPer *= 100.0f;
+		matchPercentageLabel.setText("Match Percentage: " + String.format("%.3f", matchPer) + "%");
 	}
 }
