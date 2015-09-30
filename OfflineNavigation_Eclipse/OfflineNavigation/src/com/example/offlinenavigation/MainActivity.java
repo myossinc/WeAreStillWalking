@@ -80,6 +80,12 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 				progressBar.setMax(m_AssetController.getImages().size()+1);
 				progressBar.setProgress(0);
 				//splashScreen.setVisibility(View.GONE);
+				
+				Bitmap b = m_AssetController.getImages().get(3).getImage();
+				Mat mat = new Mat();
+				Utils.bitmapToMat(b, mat);
+				ImageCompare c = new ImageCompare(mat, m_AssetController, MainActivity.this);
+				mCompareThread = c.startComparing();
 			}
 				break;
 			default: {
@@ -264,7 +270,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		if (canStartNewThread && shouldTakePictureOnNextFrame) {
 			canStartNewThread = false;
 			shouldTakePictureOnNextFrame = false;
-			ImageCompare ic = new ImageCompare(inputFrame.gray().clone(), m_AssetController, this);
+			ImageCompare ic = new ImageCompare(inputFrame.rgba().clone(), m_AssetController, this);
 			mCompareThread = ic.startComparing();
 		}
 		
