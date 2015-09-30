@@ -169,8 +169,10 @@ public class ImageCompare {
 
 
 		private RefImage useSURFAlgorithm() {
-			FeatureDetector detector = FeatureDetector.create(FeatureDetector.SIFT);
-			DescriptorExtractor descriptorExtractor = DescriptorExtractor.create(DescriptorExtractor.SIFT);
+			
+			// Use SIFT instead of SURF for better results but slower calculation
+			FeatureDetector detector = FeatureDetector.create(FeatureDetector.SURF); 
+			DescriptorExtractor descriptorExtractor = DescriptorExtractor.create(DescriptorExtractor.SURF);
 			DescriptorMatcher descriptorMatcher = DescriptorMatcher.create(DescriptorMatcher.FLANNBASED);
 
 			MatOfKeyPoint keypointsCameraImage = new MatOfKeyPoint();
