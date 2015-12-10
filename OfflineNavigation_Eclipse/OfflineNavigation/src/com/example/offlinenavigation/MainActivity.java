@@ -239,7 +239,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	public void onResume() {
 		super.onResume();
 		if (!OpenCVLoader.initDebug()) {
-			OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
+			OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_11, this, mLoaderCallback);
 		} else {
 			mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
 		}
