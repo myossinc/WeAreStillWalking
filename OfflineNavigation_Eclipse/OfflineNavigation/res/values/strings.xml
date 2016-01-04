@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">OfflineNavigation</string>
-    <string name="headline">URWalking Indoor Navigation</string>
+    <string name="headline">URW</string>
     <string name="action_settings">Show preview</string>
     <string name="node_hint">Du bist bei diesem Node</string>
     <string name="button_text">Open URwalking</string>

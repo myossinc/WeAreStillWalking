@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/action_takePicture"
-        android:showAsAction="ifRoom"
+        android:showAsAction="always"
         android:title="Take Picture"
         android:icon="@android:drawable/ic_menu_camera"/>
     
@@ -19,4 +19,22 @@
         android:showAsAction="never"
         android:title="Cancel comparison"/>
 
+    <item 
+        android:id="@+id/detectorDropdown"
+        android:showAsAction="always"
+        android:title="selectDetector"
+        android:actionLayout="@layout/dropdown"/>
+    
+    <item 
+        android:id="@+id/descriptorDropdown"
+        android:showAsAction="always"
+        android:title="selectDescriptor"
+        android:actionLayout="@layout/dropdown"/>
+        
+        <item 
+        android:id="@+id/matcherDropdown"
+        android:showAsAction="always"
+        android:title="selectMatcher"
+        android:actionLayout="@layout/dropdown"/>
+    
 </menu>

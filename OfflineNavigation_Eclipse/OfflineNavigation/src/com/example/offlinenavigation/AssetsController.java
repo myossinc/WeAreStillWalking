@@ -43,53 +43,62 @@ public class AssetsController {
 	}
 	
 	private void loadAssets() {
-		addImage("ZHG_2_33_2.JPG");
-		addImage("ZHG_2_33_3.JPG");
-		addImage("ZHG_2_33_4.JPG");
-		addImage("ZHG_2_33_5.JPG");
+		addImage("bottle_1_1_1.jpg");
+		addImage("darts_1_1_1.jpg");
+		addImage("GreyGoose_1_1_1.jpg");
+		addImage("harleyBenton_1_1_1.jpg");
+		addImage("marshall_1_1_1.jpg");
+		addImage("plastic_1_1_1.jpg");
+		addImage("schecter_1_1_1.jpg");
+		addImage("tv_1_1_1.jpg");
 		
-		addImage("ZHG_2_34_1.JPG");
-		addImage("ZHG_2_34_2.JPG");
-		addImage("ZHG_2_34_3.JPG");
-		addImage("ZHG_2_34_4.JPG");
-		
-		addImage("ZHG_2_36_1.JPG");
-		addImage("ZHG_2_36_2.JPG");
-		addImage("ZHG_2_36_3.JPG");
-		addImage("ZHG_2_36_4.JPG");
-		
-		addImage("ZHG_2_39_1.JPG");
-		addImage("ZHG_2_39_2.JPG");
-		addImage("ZHG_2_39_3.JPG");
-		
-		addImage("ZHG_2_45_1.JPG");
-		addImage("ZHG_2_45_2.JPG");
-		addImage("ZHG_2_45_3.JPG");
-		addImage("ZHG_2_45_4.JPG");
-		addImage("ZHG_2_45_5.JPG");
-		
-		addImage("ZHG_2_47_1.JPG");
-		addImage("ZHG_2_47_2.JPG");
-		addImage("ZHG_2_47_3.JPG");
-		addImage("ZHG_2_47_4.JPG");
-		
-		addImage("ZHG_2_48_1.JPG");
-		addImage("ZHG_2_48_2.JPG");
-		addImage("ZHG_2_48_3.JPG");
-		addImage("ZHG_2_48_4.JPG");
-		addImage("ZHG_2_48_5.JPG");
-		
-		addImage("ZHG_2_49_1.JPG");
-		addImage("ZHG_2_49_2.JPG");
-		addImage("ZHG_2_49_3.JPG");
-		addImage("ZHG_2_49_4.JPG");
-		addImage("ZHG_2_49_5.JPG");
-		
-		addImage("ZHG_2_50_1.JPG");
-		addImage("ZHG_2_50_2.JPG");
-		addImage("ZHG_2_50_3.JPG");
-		addImage("ZHG_2_50_4.JPG");
-		addImage("ZHG_2_50_5.JPG");
+//		addImage("ZHG_2_33_2.JPG");
+//		addImage("ZHG_2_33_3.JPG");
+//		addImage("ZHG_2_33_4.JPG");
+//		addImage("ZHG_2_33_5.JPG");
+//		
+//		addImage("ZHG_2_34_1.JPG");
+//		addImage("ZHG_2_34_2.JPG");
+//		addImage("ZHG_2_34_3.JPG");
+//		addImage("ZHG_2_34_4.JPG");
+//		
+//		addImage("ZHG_2_36_1.JPG");
+//		addImage("ZHG_2_36_2.JPG");
+//		addImage("ZHG_2_36_3.JPG");
+//		addImage("ZHG_2_36_4.JPG");
+//		
+//		addImage("ZHG_2_39_1.JPG");
+//		addImage("ZHG_2_39_2.JPG");
+//		addImage("ZHG_2_39_3.JPG");
+//		
+//		addImage("ZHG_2_45_1.JPG");
+//		addImage("ZHG_2_45_2.JPG");
+//		addImage("ZHG_2_45_3.JPG");
+//		addImage("ZHG_2_45_4.JPG");
+//		addImage("ZHG_2_45_5.JPG");
+//		
+//		addImage("ZHG_2_47_1.JPG");
+//		addImage("ZHG_2_47_2.JPG");
+//		addImage("ZHG_2_47_3.JPG");
+//		addImage("ZHG_2_47_4.JPG");
+//		
+//		addImage("ZHG_2_48_1.JPG");
+//		addImage("ZHG_2_48_2.JPG");
+//		addImage("ZHG_2_48_3.JPG");
+//		addImage("ZHG_2_48_4.JPG");
+//		addImage("ZHG_2_48_5.JPG");
+//		
+//		addImage("ZHG_2_49_1.JPG");
+//		addImage("ZHG_2_49_2.JPG");
+//		addImage("ZHG_2_49_3.JPG");
+//		addImage("ZHG_2_49_4.JPG");
+//		addImage("ZHG_2_49_5.JPG");
+//		
+//		addImage("ZHG_2_50_1.JPG");
+//		addImage("ZHG_2_50_2.JPG");
+//		addImage("ZHG_2_50_3.JPG");
+//		addImage("ZHG_2_50_4.JPG");
+//		addImage("ZHG_2_50_5.JPG");
 	}
 	
 	private void addImage(String name) {

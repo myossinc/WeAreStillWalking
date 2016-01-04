@@ -2,6 +2,8 @@ package com.example.offlinenavigation;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -11,8 +13,9 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
-
-import com.example.offlinenavigation.AssetsController.RefImage;
+import org.opencv.features2d.DescriptorExtractor;
+import org.opencv.features2d.DescriptorMatcher;
+import org.opencv.features2d.FeatureDetector;
 
 import android.animation.ObjectAnimator;
 import android.app.Activity;
@@ -26,7 +29,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.MediaStore.Images.ImageColumns;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,11 +37,17 @@ import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.offlinenavigation.AssetsController.RefImage;
 
 public class MainActivity extends Activity implements CvCameraViewListener2, ImageCompare.CompareThreadStatusListener {
 
@@ -58,6 +66,9 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	private CameraBridgeViewBase cameraView;
 	private ImageView imageFromAssets;
 	private ImageView splashScreen;
+	
+	private Spinner detectorDropdown, descriptorDropdown, matcherDropdown;
+	
 	
 	/* Progress Bar */
 	private ProgressBar progressBar;
@@ -129,7 +140,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		currentNodeLabel.setText("No matching node so far");
 		
 		matchPercentageLabel = (TextView) findViewById(R.id.matchPercentage);
-		matchPercentageLabel.setText("Match Percentage: 0.0%");
+		matchPercentageLabel.setText("Matches: 0");
 		
 		button = (Button) findViewById(R.id.fanciest_button_ever);
 		button.setEnabled(false);
@@ -142,6 +153,144 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		cameraView.setCvCameraViewListener(this);
 	}
 
+	private void setupSpinners(){	
+		List<String> detectorList = new ArrayList<String>();
+		detectorList.add("SIFT");
+		detectorList.add("SURF");
+		detectorList.add("ORB");
+		detectorList.add("Pyramid_SIFT");
+		detectorList.add("Pyramid_SURF");
+		
+		ArrayAdapter<String> detectorAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, detectorList);
+		
+		detectorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		detectorDropdown.setAdapter(detectorAdapter);
+		
+		List<String> descriptorList = new ArrayList<String>();
+		descriptorList.add("SIFT");
+		descriptorList.add("SURF");
+		descriptorList.add("ORB");
+		descriptorList.add("Opponent_SIFT");
+		descriptorList.add("Opponent_SURF");
+		
+		ArrayAdapter<String> descriptorAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, descriptorList);
+		
+		descriptorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		descriptorDropdown.setAdapter(descriptorAdapter);
+		
+		List<String> matcherList = new ArrayList<String>();
+		matcherList.add("FLANNBASED");
+		matcherList.add("BRUTEFORCE");
+		matcherList.add("BRUTEFORCE_HAMMING");
+		matcherList.add("BRUTEFORCE_HAMMINGLUT");
+		matcherList.add("BRUTEFORCE_L1");
+		matcherList.add("BRUTEFORCE_SL2");
+		
+		ArrayAdapter<String> matcherAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, matcherList);
+		
+		matcherAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		matcherDropdown.setAdapter(matcherAdapter);
+		
+	}
+	
+	private void setDropdownListeners(){
+		detectorDropdown.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				switch(position){
+					case 0: 
+						ImageCompare.setFeatureDetector(FeatureDetector.SIFT);
+						break;
+					case 1:
+						ImageCompare.setFeatureDetector(FeatureDetector.SURF);
+						break;
+					case 2:
+						ImageCompare.setFeatureDetector(FeatureDetector.ORB);
+						break;
+					case 3: 
+						ImageCompare.setFeatureDetector(FeatureDetector.PYRAMID_SIFT);
+						break;
+					case 4:
+						ImageCompare.setFeatureDetector(FeatureDetector.PYRAMID_SURF);
+						break;
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		descriptorDropdown.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				switch(position){
+					case 0: 
+						ImageCompare.setFeatureDetector(DescriptorExtractor.SIFT);
+						break;
+					case 1:
+						ImageCompare.setFeatureDetector(DescriptorExtractor.SURF);
+						break;
+					case 2:
+						ImageCompare.setFeatureDetector(DescriptorExtractor.ORB);
+						break;
+					case 3: 
+						ImageCompare.setFeatureDetector(DescriptorExtractor.OPPONENT_SIFT);
+						break;
+					case 4:
+						ImageCompare.setFeatureDetector(DescriptorExtractor.OPPONENT_SURF);
+						break;
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		matcherDropdown.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
+				switch(position){
+					case 0: 
+						ImageCompare.setDescriptorMatcher(DescriptorMatcher.FLANNBASED);
+						break;
+					case 1:
+						ImageCompare.setDescriptorMatcher(DescriptorMatcher.BRUTEFORCE);
+						break;
+					case 2:
+						ImageCompare.setDescriptorMatcher(DescriptorMatcher.BRUTEFORCE_HAMMING);
+						break;
+					case 3:
+						ImageCompare.setDescriptorMatcher(DescriptorMatcher.BRUTEFORCE_HAMMINGLUT);
+						break;
+					case 4:
+						ImageCompare.setDescriptorMatcher(DescriptorMatcher.BRUTEFORCE_L1);
+						break;
+					case 5:
+						ImageCompare.setDescriptorMatcher(DescriptorMatcher.BRUTEFORCE_SL2);
+						break;
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+	}
+	
 	private void setupListeners() {
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -197,6 +346,14 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu_main, menu);
+		MenuItem detectorItem = menu.findItem(R.id.detectorDropdown);
+		MenuItem descriptorItem = menu.findItem(R.id.descriptorDropdown);
+		MenuItem matcherItem = menu.findItem(R.id.matcherDropdown);
+		detectorDropdown = (Spinner) detectorItem.getActionView();
+		descriptorDropdown = (Spinner) descriptorItem.getActionView();
+		matcherDropdown = (Spinner) matcherItem.getActionView();
+		setupSpinners();
+		setDropdownListeners();
 		return true;
 	}
 
@@ -320,7 +477,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 					areaValue = data[0];
 					nodeValue = data[2];
 					
-					setMatchPercentage(bestFittingImage.m_Percentage);
+					setGoodMatchesNumber(bestFittingImage.m_Percentage);
 				}
 				else {
 					Toast.makeText(MainActivity.this, "No match found", Toast.LENGTH_SHORT).show();
@@ -345,8 +502,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 					Bitmap b = Bitmap.createBitmap(image.m_CompareImage.cols(), image.m_CompareImage.rows(), Bitmap.Config.ARGB_8888);
 					Utils.matToBitmap(image.m_CompareImage, b);
 					imageFromAssets.setImageBitmap(b);
-					setMatchPercentage(image.m_Percentage);
-					
+					setGoodMatchesNumber(image.m_Percentage);
 					Log.e("COMPARE_SINGLE", image.m_Name + " | Matching: " + image.m_Percentage + "%");
 				}
 				
@@ -359,5 +515,9 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	private void setMatchPercentage(double matchPer) {
 		matchPer *= 100.0f;
 		matchPercentageLabel.setText("Match Percentage: " + String.format("%.3f", matchPer) + "%");
+	}
+	
+	private void setGoodMatchesNumber(double matchPer){
+		matchPercentageLabel.setText("Matches: " + (int) matchPer);
 	}
 }
