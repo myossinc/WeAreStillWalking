@@ -2,8 +2,6 @@ package com.example.offlinenavigation;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -13,11 +11,8 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
 import org.opencv.core.Mat;
-import org.opencv.features2d.DescriptorExtractor;
-import org.opencv.features2d.DescriptorMatcher;
-import org.opencv.features2d.FeatureDetector;
+import org.opencv.core.MatOfKeyPoint;
 
-import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -30,36 +25,31 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.offlinenavigation.AssetsController.RefImage;
+import com.example.offlinenavigation.CustomSpinner.Type;
+import com.example.offlinenavigation.FancyButton.fancyButtonListener;
 
-public class MainActivity extends Activity implements CvCameraViewListener2, ImageCompare.CompareThreadStatusListener {
+public class MainActivity extends Activity implements CvCameraViewListener2, ImageCompare.CompareThreadStatusListener, fancyButtonListener {
 
 	private static final String USER_NODE = "Aktueller Node: ";
-	private static final String ROTATION = "rotation";
 	private static final String BASE_URI = "http://urwalking.ur.de/navi/index.php?";
 	private static final String START_AREA = "startArea=";
 	private static final String START_NODE = "startNode=";
+	
 	private String areaValue = "";
 	private String nodeValue = "";
 
-	private Button button;
+	private FancyButton button;
 	private TextView currentNodeLabel;
 	private TextView matchPercentageLabel;
 
@@ -67,7 +57,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	private ImageView imageFromAssets;
 	private ImageView splashScreen;
 	
-	private Spinner detectorDropdown, descriptorDropdown, matcherDropdown;
+	private CustomSpinner detectorDropdown, descriptorDropdown, matcherDropdown;
 	
 	
 	/* Progress Bar */
@@ -75,6 +65,11 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	private int progressBarProgress = 0;
 	
 	private AssetsController m_AssetController;
+	
+	private boolean shouldTakePictureOnNextFrame = false;
+	private boolean canStartNewThread = true;
+	
+	private ImageCompare.CompareImages mCompareThread = null;
 	
 	static {
 	    System.loadLibrary("opencv_java");
@@ -90,7 +85,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 				m_AssetController = new AssetsController(MainActivity.this);
 				progressBar.setMax(m_AssetController.getImages().size()+1);
 				progressBar.setProgress(0);
-				//splashScreen.setVisibility(View.GONE);
 			}
 				break;
 			default: {
@@ -101,10 +95,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		}
 	};
 
-	public MainActivity() {
-		System.out.println("started");
-	}
-
+	public MainActivity() {}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -142,7 +134,8 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		matchPercentageLabel = (TextView) findViewById(R.id.matchPercentage);
 		matchPercentageLabel.setText("Matches: 0");
 		
-		button = (Button) findViewById(R.id.fanciest_button_ever);
+		button = (FancyButton) findViewById(R.id.fanciest_button_ever);
+		button.setListener(this);
 		button.setEnabled(false);
 		
 		progressBar = (ProgressBar) findViewById(R.id.threadProgressBar);
@@ -154,193 +147,25 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	}
 
 	private void setupSpinners(){	
-		List<String> detectorList = new ArrayList<String>();
-		detectorList.add("SIFT");
-		detectorList.add("SURF");
-		detectorList.add("ORB");
-		detectorList.add("Pyramid_SIFT");
-		detectorList.add("Pyramid_SURF");
+		detectorDropdown.setType(Type.DETECTOR);
+		detectorDropdown.setupSpinner(this, CustomSpinner.DETECTOR_LIST);
+		detectorDropdown.setListener();
 		
-		ArrayAdapter<String> detectorAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, detectorList);
+		descriptorDropdown.setType(Type.DESCRIPTOR);
+		descriptorDropdown.setupSpinner(this, CustomSpinner.DESCRIPTOR_LIST);
+		descriptorDropdown.setListener();
 		
-		detectorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		detectorDropdown.setAdapter(detectorAdapter);
-		
-		List<String> descriptorList = new ArrayList<String>();
-		descriptorList.add("SIFT");
-		descriptorList.add("SURF");
-		descriptorList.add("ORB");
-		descriptorList.add("Opponent_SIFT");
-		descriptorList.add("Opponent_SURF");
-		
-		ArrayAdapter<String> descriptorAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, descriptorList);
-		
-		descriptorAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		descriptorDropdown.setAdapter(descriptorAdapter);
-		
-		List<String> matcherList = new ArrayList<String>();
-		matcherList.add("FLANNBASED");
-		matcherList.add("BRUTEFORCE");
-		matcherList.add("BRUTEFORCE_HAMMING");
-		matcherList.add("BRUTEFORCE_HAMMINGLUT");
-		matcherList.add("BRUTEFORCE_L1");
-		matcherList.add("BRUTEFORCE_SL2");
-		
-		ArrayAdapter<String> matcherAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, matcherList);
-		
-		matcherAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		matcherDropdown.setAdapter(matcherAdapter);
-		
-	}
-	
-	private void setDropdownListeners(){
-		detectorDropdown.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
-				switch(position){
-					case 0: 
-						ImageCompare.setFeatureDetector(FeatureDetector.SIFT);
-						break;
-					case 1:
-						ImageCompare.setFeatureDetector(FeatureDetector.SURF);
-						break;
-					case 2:
-						ImageCompare.setFeatureDetector(FeatureDetector.ORB);
-						break;
-					case 3: 
-						ImageCompare.setFeatureDetector(FeatureDetector.PYRAMID_SIFT);
-						break;
-					case 4:
-						ImageCompare.setFeatureDetector(FeatureDetector.PYRAMID_SURF);
-						break;
-				}
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		
-		descriptorDropdown.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
-				switch(position){
-					case 0: 
-						ImageCompare.setFeatureDetector(DescriptorExtractor.SIFT);
-						break;
-					case 1:
-						ImageCompare.setFeatureDetector(DescriptorExtractor.SURF);
-						break;
-					case 2:
-						ImageCompare.setFeatureDetector(DescriptorExtractor.ORB);
-						break;
-					case 3: 
-						ImageCompare.setFeatureDetector(DescriptorExtractor.OPPONENT_SIFT);
-						break;
-					case 4:
-						ImageCompare.setFeatureDetector(DescriptorExtractor.OPPONENT_SURF);
-						break;
-				}
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		
-		matcherDropdown.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view,
-					int position, long id) {
-				switch(position){
-					case 0: 
-						ImageCompare.setDescriptorMatcher(DescriptorMatcher.FLANNBASED);
-						break;
-					case 1:
-						ImageCompare.setDescriptorMatcher(DescriptorMatcher.BRUTEFORCE);
-						break;
-					case 2:
-						ImageCompare.setDescriptorMatcher(DescriptorMatcher.BRUTEFORCE_HAMMING);
-						break;
-					case 3:
-						ImageCompare.setDescriptorMatcher(DescriptorMatcher.BRUTEFORCE_HAMMINGLUT);
-						break;
-					case 4:
-						ImageCompare.setDescriptorMatcher(DescriptorMatcher.BRUTEFORCE_L1);
-						break;
-					case 5:
-						ImageCompare.setDescriptorMatcher(DescriptorMatcher.BRUTEFORCE_SL2);
-						break;
-				}
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+		matcherDropdown.setType(Type.MATCHER);
+		matcherDropdown.setupSpinner(this, CustomSpinner.MATCHER_LIST);
+		matcherDropdown.setListener();
 	}
 	
 	private void setupListeners() {
 		button.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-				startNavigation();
+				button.startAnimation(currentNodeLabel, USER_NODE, nodeValue);
 			}
 		});
-	}
-
-	private void startNavigation() {
-		ObjectAnimator anim = ObjectAnimator.ofFloat(button, ROTATION, 0f, 1080f);
-		anim.setDuration(500);
-		anim.start();
-		blinkButton();
-		showNode(areaValue + " " + nodeValue);
-	}
-
-	private void blinkButton() {
-		button.setBackgroundColor(Color.GREEN);
-		final Animation animation = new AlphaAnimation(1f, 0.2f);
-		animation.setDuration(10);
-		animation.setInterpolator(new LinearInterpolator());
-		animation.setRepeatCount(Animation.INFINITE);
-		animation.setRepeatMode(Animation.REVERSE);
-		button.startAnimation(animation);
-		stopBlinkingAfterOneSecond();
-	}
-
-	private void stopBlinkingAfterOneSecond() {
-		button.postDelayed(new Runnable() {
-			@Override
-			public void run() {
-				button.clearAnimation();
-				openUrWalking();
-			}
-
-			private void openUrWalking() {
-				String url = BASE_URI + START_AREA + areaValue + "&" + START_NODE + nodeValue;
-				Uri uri = Uri.parse(url);
-				Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-				startActivity(intent);
-			}
-		}, 500);
-	}
-
-	private void showNode(String node) {
-		currentNodeLabel.setText(USER_NODE + node);
-		ObjectAnimator anim = ObjectAnimator.ofFloat(button, ROTATION, 0f, 1080f);
-		anim.setDuration(1000);
-		anim.start();
-		blinkButton();
 	}
 
 	@Override
@@ -349,11 +174,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		MenuItem detectorItem = menu.findItem(R.id.detectorDropdown);
 		MenuItem descriptorItem = menu.findItem(R.id.descriptorDropdown);
 		MenuItem matcherItem = menu.findItem(R.id.matcherDropdown);
-		detectorDropdown = (Spinner) detectorItem.getActionView();
-		descriptorDropdown = (Spinner) descriptorItem.getActionView();
-		matcherDropdown = (Spinner) matcherItem.getActionView();
+		detectorDropdown = (CustomSpinner) detectorItem.getActionView();
+		descriptorDropdown = (CustomSpinner) descriptorItem.getActionView();
+		matcherDropdown = (CustomSpinner) matcherItem.getActionView();
 		setupSpinners();
-		setDropdownListeners();
 		return true;
 	}
 
@@ -361,28 +185,43 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 
-		if (id == R.id.action_settings) {
-			m_PreviewEnabled = !m_PreviewEnabled;
-			return true;
-		} else if (id == R.id.action_takePicture) {
-			if (canStartNewThread) {
-				shouldTakePictureOnNextFrame = true;
-				//item.setEnabled(false);
-			}
-			else {
-				Toast.makeText(this, "Image comparison is currently working ... blocked!", Toast.LENGTH_SHORT).show();
-			}
-		} else if (id == R.id.action_cancelThread) {
-			if (mCompareThread != null) {
-				mCompareThread.cancel(false);
-				Toast.makeText(this, "Comparing cancelled", Toast.LENGTH_SHORT).show();
-				progressBar.setProgress(0);
-				progressBarProgress = 0;
-				canStartNewThread = true;
-			}
+		switch(id) {
+		case R.id.action_settings:
+			onActionSettings();
+			break;
+		case R.id.action_takePicture:
+//			inflateNewLayout();
+			onTakePicture();
+			break;
+		case R.id.action_cancelThread:
+			onCancelThread();
+			break;
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+	
+	private void onActionSettings(){
+		m_PreviewEnabled = !m_PreviewEnabled;
+	}
+	
+	private void onTakePicture(){
+		if (canStartNewThread) {
+			shouldTakePictureOnNextFrame = true;
+		}
+		else {
+			Toast.makeText(this, "Image comparison is currently working ... blocked!", Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	private void onCancelThread(){
+		if (mCompareThread != null) {
+			mCompareThread.cancel(false);
+			Toast.makeText(this, "Comparing cancelled", Toast.LENGTH_SHORT).show();
+			progressBar.setProgress(0);
+			progressBarProgress = 0;
+			canStartNewThread = true;
+		}
 	}
 
 	@Override
@@ -409,11 +248,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	@Override
 	public void onCameraViewStopped() {
 	}
-
-	private boolean shouldTakePictureOnNextFrame = false;
-	private boolean canStartNewThread = true;
-	
-	private ImageCompare.CompareImages mCompareThread = null;
 	
 	@Override
 	public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
@@ -421,6 +255,7 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		if (canStartNewThread && shouldTakePictureOnNextFrame) {
 			canStartNewThread = false;
 			shouldTakePictureOnNextFrame = false;
+	
 			ImageCompare ic = new ImageCompare(inputFrame.rgba().clone(), m_AssetController, this);
 			mCompareThread = ic.startComparing();
 		}
@@ -446,8 +281,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 
 	@Override
 	public void onComparingStarted() {
-		//Toast.makeText(this, "Started", Toast.LENGTH_SHORT).show();
-		Log.e("CompareThread", "Started");
 		MainActivity.this.runOnUiThread(new Runnable() {
 
 			@Override
@@ -491,13 +324,10 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 	
 	@Override
 	public void onCompareSinglePictureFinished(final RefImage image) {
-		//Log.e("CompareThread", "One finished");
 		MainActivity.this.runOnUiThread(new Runnable() {
 
 			@Override
 			public void run() {
-				//Toast.makeText(MainActivity.this, "", Toast.LENGTH_SHORT).show();
-				
 				if (image != null && image.m_CompareImage != null && m_PreviewEnabled) {
 					Bitmap b = Bitmap.createBitmap(image.m_CompareImage.cols(), image.m_CompareImage.rows(), Bitmap.Config.ARGB_8888);
 					Utils.matToBitmap(image.m_CompareImage, b);
@@ -512,12 +342,25 @@ public class MainActivity extends Activity implements CvCameraViewListener2, Ima
 		});
 	}
 	
-	private void setMatchPercentage(double matchPer) {
-		matchPer *= 100.0f;
-		matchPercentageLabel.setText("Match Percentage: " + String.format("%.3f", matchPer) + "%");
-	}
-	
 	private void setGoodMatchesNumber(double matchPer){
 		matchPercentageLabel.setText("Matches: " + (int) matchPer);
+	}
+
+	private void openUrWalking() {
+		String url = BASE_URI + START_AREA + areaValue + "&"
+				+ START_NODE + nodeValue;
+		Uri uri = Uri.parse(url);
+		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+		startActivity(intent);
+	}
+	
+	@Override
+	public void onFancyAnimationEnded() {
+		openUrWalking();
+	}
+	
+	private void inflateNewLayout(){
+		LayoutInflater inflater = (LayoutInflater)   this.getSystemService(Context.LAYOUT_INFLATER_SERVICE); 
+		inflater.inflate(R.layout.test, null);
 	}
 }

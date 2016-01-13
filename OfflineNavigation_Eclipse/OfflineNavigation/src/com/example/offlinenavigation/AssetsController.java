@@ -6,13 +6,11 @@ import java.util.ArrayList;
 
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfKeyPoint;
-import org.opencv.android.*;
 
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 public class AssetsController {
 	
@@ -51,6 +49,12 @@ public class AssetsController {
 		addImage("plastic_1_1_1.jpg");
 		addImage("schecter_1_1_1.jpg");
 		addImage("tv_1_1_1.jpg");
+		addImage("Raspberry_1_1_1.jpg");
+		addImage("Raspberry2_1_1_1.jpg");
+		addImage("KabelKit_1_1_1.jpg");
+		addImage("Max_1_1_1.jpg");
+		addImage("KabelKit2_1_1_1.jpg");
+		addImage("Max2_1_1_1.jpg");
 		
 //		addImage("ZHG_2_33_2.JPG");
 //		addImage("ZHG_2_33_3.JPG");
