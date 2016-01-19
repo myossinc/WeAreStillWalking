@@ -13,11 +13,11 @@ import android.widget.TextView;
 public class FancyButton extends Button {
 	private static final String ROTATION = "rotation";
 	
-	public interface fancyButtonListener {
+	public interface FancyButtonListener {
 		public void onFancyAnimationEnded();
 	}
 
-	private fancyButtonListener listener;
+	private FancyButtonListener listener;
 
 	public FancyButton(Context context) {
 		super(context);
@@ -33,7 +33,7 @@ public class FancyButton extends Button {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public void setListener(fancyButtonListener listener){
+	public void setListener(FancyButtonListener listener){
 		this.listener = listener;
 	}
 	

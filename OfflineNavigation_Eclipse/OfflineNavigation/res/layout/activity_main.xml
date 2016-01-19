@@ -10,66 +10,20 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <TextView
-        android:id="@+id/node_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:text="@string/node_hint" />
-
-    <ImageView
-        android:id="@+id/matched_image1"
-        android:layout_width="75pt"
-        android:layout_height="75pt"
-        android:layout_alignStart="@+id/threadProgressBar"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignTop="@+id/camera_image" />
-
     <org.opencv.android.JavaCameraView
         android:id="@+id/camera_image"
-        android:layout_width="75pt"
-        android:layout_height="75pt"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/fanciest_button_ever"
-        android:layout_toStartOf="@+id/matched_image1"
         opencv:camera_id="any"
         opencv:show_fps="true" />
 
-    <ProgressBar
-        android:id="@+id/threadProgressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/node_name"
-        android:layout_centerHorizontal="true"
-        android:max="100"
-        android:progress="30" />
-
-    <com.example.offlinenavigation.FancyButton 
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/fanciest_button_ever"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@+id/matched_image1"
-        android:text="@string/button_text"
-        android:textSize="12sp" />
-
-    <TextView
-        android:id="@+id/matchPercentage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/node_name"
-        android:layout_below="@+id/node_name"
-        android:text="Small Text"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
     <ImageView
-        android:id="@+id/splashScreen"
+        android:id="@+id/splash_screen"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_alignParentEnd="true"
         android:src="@drawable/urwalking" />
 
 </RelativeLayout>

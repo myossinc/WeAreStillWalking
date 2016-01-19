@@ -13,111 +13,122 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 public class AssetsController {
-	
+
 	public class RefImage {
 		public String m_Name;
 		public String m_FullName;
 		public Mat m_CompareImage;
 		public double m_Percentage = 0.0f;
-		
+
 		public MatOfKeyPoint m_Keypoints = null;
 		public Mat m_Descriptors = null;
+
+		private String areaValue = "";
+		private String nodeValue = "";
+
+		public RefImage(String name){
+			this.m_FullName = name;
+			
+			removeImageEnding();
+			extractNodeFromName();
+			extractAreaFromName();
+		}
 		
 		public Bitmap getImage() {
 			return getBitmapFromAsset(m_FullName);
 		}
+	
+		private void removeImageEnding(){
+			this.m_Name = this.m_FullName.replace(".jpg", "");
+		}
+		
+		private void extractNodeFromName(){
+			try {
+				String[] data = this.m_Name.split("_");
+				nodeValue = data[2];
+			} catch (Exception e) {
+				nodeValue = "ährohr";
+			}
+		}
+		
+		private void extractAreaFromName(){
+			try {
+				String[] data = this.m_Name.split("_");
+				areaValue = data[0];
+			} catch (Exception e) {
+				areaValue = "ährohr";
+			}
+		}
+
+		public String getAreaValue() {
+			return areaValue;
+		}
+
+		public String getNodeValue() {
+			return nodeValue;
+		}
 	}
-	
+
 	private ArrayList<RefImage> m_ReferenceImages;
-	
+
 	private Context m_Context;
 	private AssetManager m_AssetManager;
-	
-	public AssetsController(Context context) {
+	private int m_width;
+	private int m_height;
+
+	public AssetsController(Context context, int width, int height) {
 		m_Context = context;
 		m_ReferenceImages = new ArrayList<RefImage>();
 		m_AssetManager = m_Context.getAssets();
+		m_width = width;
+		m_height = height;
 		loadAssets();
 	}
-	
+
 	private void loadAssets() {
-		addImage("bottle_1_1_1.jpg");
-		addImage("darts_1_1_1.jpg");
-		addImage("GreyGoose_1_1_1.jpg");
-		addImage("harleyBenton_1_1_1.jpg");
-		addImage("marshall_1_1_1.jpg");
-		addImage("plastic_1_1_1.jpg");
-		addImage("schecter_1_1_1.jpg");
-		addImage("tv_1_1_1.jpg");
-		addImage("Raspberry_1_1_1.jpg");
-		addImage("Raspberry2_1_1_1.jpg");
-		addImage("KabelKit_1_1_1.jpg");
-		addImage("Max_1_1_1.jpg");
-		addImage("KabelKit2_1_1_1.jpg");
-		addImage("Max2_1_1_1.jpg");
-		
-//		addImage("ZHG_2_33_2.JPG");
-//		addImage("ZHG_2_33_3.JPG");
-//		addImage("ZHG_2_33_4.JPG");
-//		addImage("ZHG_2_33_5.JPG");
-//		
-//		addImage("ZHG_2_34_1.JPG");
-//		addImage("ZHG_2_34_2.JPG");
-//		addImage("ZHG_2_34_3.JPG");
-//		addImage("ZHG_2_34_4.JPG");
-//		
-//		addImage("ZHG_2_36_1.JPG");
-//		addImage("ZHG_2_36_2.JPG");
-//		addImage("ZHG_2_36_3.JPG");
-//		addImage("ZHG_2_36_4.JPG");
-//		
-//		addImage("ZHG_2_39_1.JPG");
-//		addImage("ZHG_2_39_2.JPG");
-//		addImage("ZHG_2_39_3.JPG");
-//		
-//		addImage("ZHG_2_45_1.JPG");
-//		addImage("ZHG_2_45_2.JPG");
-//		addImage("ZHG_2_45_3.JPG");
-//		addImage("ZHG_2_45_4.JPG");
-//		addImage("ZHG_2_45_5.JPG");
-//		
-//		addImage("ZHG_2_47_1.JPG");
-//		addImage("ZHG_2_47_2.JPG");
-//		addImage("ZHG_2_47_3.JPG");
-//		addImage("ZHG_2_47_4.JPG");
-//		
-//		addImage("ZHG_2_48_1.JPG");
-//		addImage("ZHG_2_48_2.JPG");
-//		addImage("ZHG_2_48_3.JPG");
-//		addImage("ZHG_2_48_4.JPG");
-//		addImage("ZHG_2_48_5.JPG");
-//		
-//		addImage("ZHG_2_49_1.JPG");
-//		addImage("ZHG_2_49_2.JPG");
-//		addImage("ZHG_2_49_3.JPG");
-//		addImage("ZHG_2_49_4.JPG");
-//		addImage("ZHG_2_49_5.JPG");
-//		
-//		addImage("ZHG_2_50_1.JPG");
-//		addImage("ZHG_2_50_2.JPG");
-//		addImage("ZHG_2_50_3.JPG");
-//		addImage("ZHG_2_50_4.JPG");
-//		addImage("ZHG_2_50_5.JPG");
+		addImage("doors/single/inside/hoch/moli.jpg");
+		addImage("doors/single/inside/hoch/mori.jpg");
+		addImage("doors/single/inside/hoch/muli.jpg");
+		addImage("doors/single/inside/hoch/muri.jpg");
+		addImage("doors/single/inside/hoch/oli.jpg");
+		addImage("doors/single/inside/hoch/ori.jpg");
+		addImage("doors/single/inside/hoch/ui.jpg");
+
+		addImage("doors/single/inside/quer/moli.jpg");
+		addImage("doors/single/inside/quer/mori.jpg");
+		addImage("doors/single/inside/quer/muli.jpg");
+		addImage("doors/single/inside/quer/muri.jpg");
+		addImage("doors/single/inside/quer/oli.jpg");
+		addImage("doors/single/inside/quer/ori.jpg");
+		addImage("doors/single/inside/quer/ui.jpg");
+
+		addImage("doors/single/outside/hoch/mola.jpg");
+		addImage("doors/single/outside/hoch/mora.jpg");
+		addImage("doors/single/outside/hoch/mula.jpg");
+		addImage("doors/single/outside/hoch/mura.jpg");
+		addImage("doors/single/outside/hoch/ola.jpg");
+		addImage("doors/single/outside/hoch/ora.jpg");
+		addImage("doors/single/outside/hoch/ua.jpg");
+
+		addImage("doors/single/outside/quer/mola.jpg");
+		addImage("doors/single/outside/quer/mora.jpg");
+		addImage("doors/single/outside/quer/mula.jpg");
+		addImage("doors/single/outside/quer/mura.jpg");
+		addImage("doors/single/outside/quer/ola.jpg");
+		addImage("doors/single/outside/quer/ora.jpg");
+		addImage("doors/single/outside/quer/ua.jpg");
 	}
-	
+
 	private void addImage(String name) {
-		RefImage image = new RefImage();
-		image.m_FullName = name;
-		image.m_Name = name.replace(".JPG", "");
+		RefImage image = new RefImage(name);
+	
 		m_ReferenceImages.add(image);
 	}
-	
+
 	public ArrayList<RefImage> getImages() {
 		return m_ReferenceImages;
 	}
-	
 
-	
 	// Get bitmap from assets folder
 	private Bitmap getBitmapFromAsset(String filePath) {
 
@@ -127,14 +138,13 @@ public class AssetsController {
 			istr = m_AssetManager.open(filePath);
 			bitmap = BitmapFactory.decodeStream(istr);
 			istr.close();
+			bitmap = Bitmap
+					.createScaledBitmap(bitmap, m_width, m_height, false);
 		} catch (IOException e) {
 			// handle exception
 		}
-		
-		bitmap = Bitmap.createScaledBitmap(bitmap, 768, 432, false);
 
 		return bitmap;
 	}
-	
 
 }

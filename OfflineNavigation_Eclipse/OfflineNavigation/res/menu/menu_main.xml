@@ -3,38 +3,32 @@
     tools:context="com.example.offlinenavigation.MainActivity" >
 
     <item
-        android:id="@+id/action_takePicture"
+        android:id="@+id/detector_dropdown"
+        android:actionLayout="@layout/dropdown"
         android:showAsAction="always"
-        android:title="Take Picture"
-        android:icon="@android:drawable/ic_menu_camera"/>
-    
+        android:title="selectDetector"/>
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/descriptor_dropdown"
+        android:actionLayout="@layout/dropdown"
+        android:showAsAction="always"
+        android:title="selectDescriptor"/>
+    <item
+        android:id="@+id/matcher_dropdown"
+        android:actionLayout="@layout/dropdown"
+        android:showAsAction="always"
+        android:title="selectMatcher"/>
+    <item
+        android:id="@+id/action_takePicture"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:showAsAction="always"
+        android:title="Take Picture"/>
+    <item
+        android:id="@+id/open_edit_min_distance_dialog"
         android:showAsAction="never"
-        android:title="@string/action_settings"
-        android:icon="@android:drawable/ic_menu_manage"/>
-    
+        android:title="Open current min distance dialog"/>
     <item
         android:id="@+id/action_cancelThread"
         android:showAsAction="never"
         android:title="Cancel comparison"/>
 
-    <item 
-        android:id="@+id/detectorDropdown"
-        android:showAsAction="always"
-        android:title="selectDetector"
-        android:actionLayout="@layout/dropdown"/>
-    
-    <item 
-        android:id="@+id/descriptorDropdown"
-        android:showAsAction="always"
-        android:title="selectDescriptor"
-        android:actionLayout="@layout/dropdown"/>
-        
-        <item 
-        android:id="@+id/matcherDropdown"
-        android:showAsAction="always"
-        android:title="selectMatcher"
-        android:actionLayout="@layout/dropdown"/>
-    
 </menu>

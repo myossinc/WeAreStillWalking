@@ -21,14 +21,10 @@ public class CustomSpinner extends Spinner {
 
 		private final int value;
 		private final int[] DETECTOR_LIST = { FeatureDetector.SIFT,
-				FeatureDetector.SURF, FeatureDetector.PYRAMID_SIFT,
-				FeatureDetector.PYRAMID_SURF, FeatureDetector.ORB };
+				FeatureDetector.SURF,  FeatureDetector.ORB };
 		private final int[] DESCRIPTOR_LIST = { DescriptorExtractor.SIFT,
-				DescriptorExtractor.SURF, DescriptorExtractor.OPPONENT_SIFT,
-				DescriptorExtractor.OPPONENT_SURF, DescriptorExtractor.BRIEF };
-		private final int[] MATCHER_LIST = { DescriptorMatcher.FLANNBASED,
-				DescriptorMatcher.BRUTEFORCE, DescriptorMatcher.BRUTEFORCE_L1,
-				DescriptorMatcher.BRUTEFORCE_SL2, DescriptorMatcher.BRUTEFORCE_HAMMING };
+				DescriptorExtractor.SURF, DescriptorExtractor.BRIEF };
+		private final int[] MATCHER_LIST = { DescriptorMatcher.FLANNBASED, DescriptorMatcher.BRUTEFORCE_HAMMING };
 
 		private final List<int[]> TYPE_LISTS;
 
@@ -59,8 +55,6 @@ public class CustomSpinner extends Spinner {
 		{
 			add("SIFT");
 			add("SURF");
-			add("PYRAMID_SIFT");
-			add("PYRAMID_SURF");
 			add("ORB");
 		}
 	};
@@ -69,8 +63,6 @@ public class CustomSpinner extends Spinner {
 		{
 			add("SIFT");
 			add("SURF");
-			add("OPPONENT_SIFT");
-			add("OPPONENT_SURF");
 			add("BRIEF");
 		}
 	};
@@ -78,9 +70,6 @@ public class CustomSpinner extends Spinner {
 	public static final ArrayList<String> MATCHER_LIST = new ArrayList<String>() {
 		{
 			add("FLANN");
-			add("BRUT");
-			add("BRUT_L1");
-			add("BRUT_SL2");
 			add("BRUT_HAM");
 		}
 	};
