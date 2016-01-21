@@ -37,10 +37,9 @@ public class FancyButton extends Button {
 		this.listener = listener;
 	}
 	
-	public void startAnimation(TextView currentNodeLabel, String userNode, String node) {
+	public void startAnimation() {
 		animateButton(500);
 		blinkButton();
-		currentNodeLabel.setText(userNode + node);
 		animateButton(1000);
 		blinkButton();
 	}

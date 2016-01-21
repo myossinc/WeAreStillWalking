@@ -18,7 +18,7 @@ public class AssetsController {
 		public String m_Name;
 		public String m_FullName;
 		public Mat m_CompareImage;
-		public double m_Percentage = 0.0f;
+		public int m_matches = 0;
 
 		public MatOfKeyPoint m_Keypoints = null;
 		public Mat m_Descriptors = null;

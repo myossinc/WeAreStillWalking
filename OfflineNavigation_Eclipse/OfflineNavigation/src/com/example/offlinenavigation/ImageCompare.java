@@ -141,7 +141,7 @@ public class ImageCompare {
 			Mat descriptorsCamImg = extractDescription(descriptorExtractor,
 					m_Image, keypointsCameraImage);
 
-			double[] results = new double[m_Assets.getImages().size()];
+			int[] results = new int[m_Assets.getImages().size()];
 
 			for (int i = 0; i < m_Assets.getImages().size(); i++) {
 				if (isCancelled())
@@ -175,9 +175,9 @@ public class ImageCompare {
 						keypointsCameraImage, refImageCv,
 						curRefImage.m_Keypoints, good_matches);
 
-				results[i] = (double) good_matches.toList().size();
+				results[i] = good_matches.toList().size();
 
-				curRefImage.m_Percentage = results[i];
+				curRefImage.m_matches = results[i];
 
 				publishProgress(curRefImage);
 
@@ -187,8 +187,8 @@ public class ImageCompare {
 			return getBestFittingImage(results);
 		}
 
-		private RefImage getBestFittingImage(double[] results) {
-			double maxValue = 0;
+		private RefImage getBestFittingImage(int[] results) {
+			int maxValue = 0;
 			int bestId = -1;
 			for (int i = 0; i < results.length; i++) {
 				if (results[i] > maxValue) {
@@ -212,7 +212,7 @@ public class ImageCompare {
 
 		@Override
 		protected void onPostExecute(RefImage result) {
-			if (result == null || (int) result.m_Percentage < 10) {
+			if (result == null || (int) result.m_matches < 7) {
 				result = null;
 			}
 			m_StatusListener.onCompareFinished(result);

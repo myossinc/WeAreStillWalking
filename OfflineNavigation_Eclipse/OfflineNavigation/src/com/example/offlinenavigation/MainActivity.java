@@ -231,6 +231,9 @@ public class MainActivity extends Activity implements CvCameraViewListener2,
 			@Override
 			public void run() {
 				if (bestFittingImage != null) {
+					updateKeypointImage(bestFittingImage);
+					compareProgressDialog.setCurrentNodeInformation(bestFittingImage);
+					compareProgressDialog.setButtonEnabledStatus(true);
 					showToast("Search completed");
 				} else {
 					showToast("No match found");
@@ -245,23 +248,28 @@ public class MainActivity extends Activity implements CvCameraViewListener2,
 
 			@Override
 			public void run() {
-				if (image != null && image.m_CompareImage != null) {
-					Bitmap bm = Bitmap.createBitmap(
-							image.m_CompareImage.cols(),
-							image.m_CompareImage.rows(),
-							Bitmap.Config.ARGB_8888);
-					Utils.matToBitmap(image.m_CompareImage, bm);
+				updateKeypointImage(image);
 
-					compareProgressDialog.setImageViewContent(bm,
-							R.id.keypoint_image);
-				}
-
+				compareProgressDialog.setCurrentNodeInformation(image);
 				compareProgressDialog.updateProgress();
 			}
 
 		});
 	}
 
+	private void updateKeypointImage(RefImage image){
+		if (image != null && image.m_CompareImage != null) {
+			Bitmap bm = Bitmap.createBitmap(
+					image.m_CompareImage.cols(),
+					image.m_CompareImage.rows(),
+					Bitmap.Config.ARGB_8888);
+			Utils.matToBitmap(image.m_CompareImage, bm);
+
+			compareProgressDialog.setImageViewContent(bm,
+					R.id.keypoint_image);
+		}
+	}
+	
 	@Override
 	public void onComparissonCanceled() {
 		cancelThread();
