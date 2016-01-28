@@ -29,6 +29,9 @@ public class CompareProgressDialog extends Dialog implements
 	private static String nodeValue = "";
 	
 	private static final String BASE_URI = "http://urwalking.ur.de/navi/index.php?preselect&start=[";
+	private static final String AUDIMAXX = "ZentralesHoersaalgebaeude";
+	private static final String SEPERATOR = ",";
+	private static final String CLOSE_BRACKET = "]";
 
 	private CancelComparissonListener listener;
 
@@ -191,7 +194,7 @@ public class CompareProgressDialog extends Dialog implements
 	}
 
 	private void openUrWalking() {
-		String url = BASE_URI + nodeValue + "," + areaValue + ",Audimaxx]"; 
+		String url = BASE_URI + nodeValue + SEPERATOR + areaValue + SEPERATOR + AUDIMAXX + CLOSE_BRACKET; 
 		Uri uri = Uri.parse(url);
 		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		this.getContext().startActivity(intent);

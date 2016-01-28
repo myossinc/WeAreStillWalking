@@ -8,7 +8,6 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
-import android.widget.TextView;
 
 public class FancyButton extends Button {
 	private static final String ROTATION = "rotation";
