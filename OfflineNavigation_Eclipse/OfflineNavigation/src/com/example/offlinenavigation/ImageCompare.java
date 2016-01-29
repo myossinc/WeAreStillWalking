@@ -157,11 +157,8 @@ public class ImageCompare {
 
 				changeColorChannel(refImageCv);
 
-				curRefImage.m_Keypoints = curRefImage.m_Keypoints == null ? detectKeypoints(
-						detector, refImageCv) : curRefImage.m_Keypoints;
-				curRefImage.m_Descriptors = curRefImage.m_Descriptors == null ? extractDescription(
-						descriptorExtractor, refImageCv,
-						curRefImage.m_Keypoints) : curRefImage.m_Descriptors;
+				curRefImage.m_Keypoints =  detectKeypoints(detector, refImageCv);
+				curRefImage.m_Descriptors = extractDescription(descriptorExtractor, refImageCv, curRefImage.m_Keypoints);
 
 				MatOfDMatch matches = matchKeypoint(descriptorsCamImg,
 						curRefImage.m_Descriptors);
