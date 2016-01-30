@@ -35,9 +35,9 @@ public class NumberPickerDialog extends Dialog {
 		minDistancePicker = (NumberPicker) this
 				.findViewById(R.id.min_distance_picker);
 		
-		minDistancePicker.setValue(15);
 		minDistancePicker.setMinValue(0);
 		minDistancePicker.setMaxValue(500);
+		minDistancePicker.setValue(15);
 	}
 
 	private void setupOkButton(){
