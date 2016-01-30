@@ -233,7 +233,6 @@ public class MainActivity extends Activity implements CvCameraViewListener2,
 				if (bestFittingImage != null) {
 					updateKeypointImage(bestFittingImage);
 					compareProgressDialog.setCurrentNodeInformation(bestFittingImage);
-					compareProgressDialog.setButtonEnabledStatus(true);
 					showToast("Search completed");
 				} else {
 					showToast("No match found");

@@ -46,13 +46,6 @@
         android:layout_gravity="center_horizontal"
         android:orientation="horizontal" >
 
-        <com.example.offlinenavigation.FancyButton
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/fanciest_button_ever"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_text" />
-
         <Button
             android:id="@+id/button_cancel"
             android:layout_width="wrap_content"

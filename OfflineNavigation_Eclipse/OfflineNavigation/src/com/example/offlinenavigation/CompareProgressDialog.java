@@ -2,9 +2,7 @@ package com.example.offlinenavigation;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -15,8 +13,7 @@ import android.widget.TextView;
 
 import com.example.offlinenavigation.AssetsController.RefImage;
 
-public class CompareProgressDialog extends Dialog implements
-		FancyButton.FancyButtonListener {
+public class CompareProgressDialog extends Dialog {
 
 	public interface CancelComparissonListener {
 		public void onComparissonCanceled();
@@ -24,14 +21,6 @@ public class CompareProgressDialog extends Dialog implements
 
 	private static final String USER_NODE = "Aktueller Node: ";
 	private static final String MATCHES = "Matches: ";
-	
-	private static String areaValue = "";
-	private static String nodeValue = "";
-	
-	private static final String BASE_URI = "http://urwalking.ur.de/navi/index.php?preselect&start=[";
-	private static final String AUDIMAXX = "ZentralesHoersaalgebaeude";
-	private static final String SEPERATOR = ",";
-	private static final String CLOSE_BRACKET = "]";
 
 	private CancelComparissonListener listener;
 
@@ -39,8 +28,6 @@ public class CompareProgressDialog extends Dialog implements
 	private ImageView keypointImageView;
 	private TextView nodeNameView;
 	private TextView matchesView;
-
-	private FancyButton button;
 
 	private int maxProgress;
 
@@ -73,7 +60,6 @@ public class CompareProgressDialog extends Dialog implements
 		setText(nodeNameView, "");
 		setText(matchesView, "");
 		setBitmap(keypointImageView, null);
-		button.setEnabled(false);
 	}
 
 	public void updateProgress() {
@@ -83,12 +69,6 @@ public class CompareProgressDialog extends Dialog implements
 	public void setCurrentNodeInformation(RefImage image){
 		setText(nodeNameView, USER_NODE +  image.m_Name);
 		setText(matchesView, MATCHES + (int) image.m_matches);
-		areaValue = image.getAreaValue();
-		nodeValue = image.getNodeValue();
-	}
-	
-	public void setButtonEnabledStatus(boolean enabled){
-		button.setEnabled(enabled);
 	}
 
 	public void setImageViewContent(Bitmap bm, int id) {
@@ -147,25 +127,12 @@ public class CompareProgressDialog extends Dialog implements
 		setupProgressBar();
 		setupImageViews();
 		setupCancelButton();
-		setupFancyButton();
 		setupTextViews();
 	}
 
 	private void setupTextViews() {
 		nodeNameView = (TextView) this.findViewById(R.id.node_name);
 		matchesView = (TextView) this.findViewById(R.id.matches);
-	}
-
-	private void setupFancyButton() {
-		button = (FancyButton) findViewById(R.id.fanciest_button_ever);
-		button.setListener(this);
-		button.setEnabled(false);
-
-		button.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				button.startAnimation();
-			}
-		});
 	}
 
 	private void setupProgressBar() {
@@ -191,17 +158,5 @@ public class CompareProgressDialog extends Dialog implements
 			}
 		});
 
-	}
-
-	private void openUrWalking() {
-		String url = BASE_URI + nodeValue + SEPERATOR + areaValue + SEPERATOR + AUDIMAXX + CLOSE_BRACKET; 
-		Uri uri = Uri.parse(url);
-		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-		this.getContext().startActivity(intent);
-	}
-
-	@Override
-	public void onFancyAnimationEnded() {
-		openUrWalking();
 	}
 }
